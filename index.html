@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Se libérer des schémas relationnels répétitifs | Conférence</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C8A96E; --gold-light: #E8D5A3; --dark: #0D0D0D; --dark-2: #161616;
+    --dark-3: #1F1F1F; --dark-4: #2A2A2A; --cream: #F5F0E8; --cream-2: #EDE6D6;
+    --text-muted: #888; --text-body: #C5BFB5; --green-accent: #3D7A5C;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--cream); overflow-x: hidden; }
+
+  /* URGENCY BAR */
+  .urgency-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--gold); color: var(--dark);
+    text-align: center; padding: 14px 24px; font-size: 13px; font-weight: 500; z-index: 100;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+  }
+  .urgency-bar a { color: var(--dark); font-weight: 700; text-decoration: underline; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; padding: 80px 24px 100px; position: relative;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, #1a1206 0%, var(--dark) 70%);
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C8A96E' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .badge {
+    display: inline-block; background: rgba(200,169,110,0.15); border: 1px solid rgba(200,169,110,0.4);
+    color: var(--gold); font-size: 11px; font-weight: 500; letter-spacing: 3px;
+    text-transform: uppercase; padding: 8px 20px; border-radius: 40px; margin-bottom: 32px;
+  }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 400; line-height: 1.15; max-width: 800px; margin-bottom: 12px; }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-body); font-weight: 300; max-width: 560px; line-height: 1.7; margin-bottom: 40px; }
+  .event-info { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .event-info span { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-body); }
+  .event-info span strong { color: var(--cream); font-weight: 500; }
+  .icon { width: 16px; height: 16px; fill: var(--gold); flex-shrink: 0; }
+  .cta-primary {
+    display: inline-block; background: var(--gold); color: var(--dark); font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 500; letter-spacing: 0.5px; padding: 18px 44px; border-radius: 4px;
+    text-decoration: none; transition: background 0.2s, transform 0.15s; border: none; cursor: pointer;
+  }
+  .cta-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .cta-note { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+
+  /* SECTIONS */
+  section { padding: 80px 24px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 400; line-height: 1.2; margin-bottom: 20px; }
+  .section-title em { font-style: italic; color: var(--gold); }
+  .divider { width: 60px; height: 1px; background: var(--gold); margin: 24px auto; opacity: 0.5; }
+
+  /* PROBLÈME */
+  .problem-section { background: var(--dark-2); border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: rgba(255,255,255,0.06); border-radius: 8px; overflow: hidden; margin-top: 48px; }
+  .problem-item { background: var(--dark-2); padding: 32px 28px; position: relative; }
+  .problem-item::before { content: '"'; position: absolute; top: 16px; left: 20px; font-family: 'Playfair Display', serif; font-size: 48px; color: var(--gold); opacity: 0.3; line-height: 1; }
+  .problem-item p { font-size: 14px; color: var(--text-body); line-height: 1.7; padding-top: 12px; font-style: italic; }
+
+  /* PROMESSE */
+  .promise-section { text-align: center; }
+  .promise-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin: 40px auto; max-width: 600px; text-align: left; }
+  .promise-list li { display: flex; gap: 16px; align-items: flex-start; font-size: 15px; color: var(--text-body); line-height: 1.6; }
+  .check { width: 22px; height: 22px; background: rgba(61,122,92,0.2); border: 1px solid rgba(61,122,92,0.5); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .check svg { width: 11px; height: 11px; fill: #5AAD85; }
+
+  /* SPEAKER */
+  .speaker-section { background: var(--dark-2); }
+  .speaker-grid { display: grid; grid-template-columns: 320px 1fr; gap: 48px; align-items: start; margin-top: 48px; }
+  @media (max-width: 700px) { .speaker-grid { grid-template-columns: 1fr; } }
+  .speaker-photo { border-radius: 8px; border: 2px solid rgba(200,169,110,0.3); overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .speaker-photo img { width: 100%; height: auto; display: block; filter: contrast(1.05) saturate(0.9); }
+  .speaker-name { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; margin-bottom: 6px; }
+  .speaker-title { font-size: 13px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 24px; }
+  .speaker-bio { font-size: 14px; color: var(--text-body); line-height: 1.8; }
+  .speaker-bio p + p { margin-top: 14px; }
+  .speaker-contact { margin-top: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .speaker-contact a { font-size: 13px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; }
+  .speaker-contact a:hover { color: var(--gold); }
+
+  /* PROGRAMME */
+  .programme-section { text-align: center; }
+  .timeline { position: relative; margin: 48px auto; max-width: 640px; text-align: left; }
+  .timeline::before { content: ''; position: absolute; left: 30px; top: 8px; bottom: 8px; width: 1px; background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent); opacity: 0.3; }
+  .timeline-item { display: flex; gap: 24px; margin-bottom: 32px; position: relative; }
+  .timeline-time { font-size: 11px; color: var(--gold); font-weight: 500; letter-spacing: 1px; min-width: 60px; padding-top: 4px; text-align: right; }
+  .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); flex-shrink: 0; margin-top: 6px; opacity: 0.8; }
+  .timeline-content h4 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .timeline-content p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* INSCRIPTION */
+  .register-section { background: linear-gradient(135deg, #0D0D0D 0%, #1a1206 100%); border-top: 1px solid rgba(200,169,110,0.2); text-align: center; padding-bottom: 120px; }
+  .register-card { background: var(--dark-2); border: 1px solid rgba(200,169,110,0.2); border-radius: 12px; padding: 48px 40px; max-width: 560px; margin: 48px auto 0; }
+  .price-tag { font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--gold); margin-bottom: 8px; }
+  .price-tag span { font-size: 1.2rem; vertical-align: super; font-family: 'DM Sans', sans-serif; font-weight: 300; }
+  .price-note { font-size: 12px; color: var(--text-muted); margin-bottom: 32px; }
+  .form-group { margin-bottom: 16px; text-align: left; }
+  .form-group label { display: block; font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .form-group input, .form-group select { width: 100%; background: var(--dark-3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 14px 16px; color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus { border-color: rgba(200,169,110,0.5); }
+  .form-group input::placeholder { color: var(--text-muted); }
+  .form-group select option { background: var(--dark-3); color: var(--cream); }
+  .form-submit { width: 100%; background: var(--gold); color: var(--dark); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; padding: 18px; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s, transform 0.15s; margin-top: 8px; letter-spacing: 0.3px; }
+  .form-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .trust-row { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 24px; }
+  .trust-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+
+  /* FAQ */
+  .faq-section { background: var(--dark-2); }
+  .faq-list { margin-top: 40px; }
+  details { border-bottom: 1px solid rgba(255,255,255,0.07); }
+  summary { padding: 20px 0; cursor: pointer; font-size: 15px; font-weight: 500; color: var(--cream); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; font-size: 20px; color: var(--gold); font-weight: 300; flex-shrink: 0; transition: transform 0.2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 0 20px; font-size: 14px; color: var(--text-muted); line-height: 1.8; }
+
+  /* FOOTER */
+  footer { padding: 40px 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); }
+  footer p { font-size: 12px; color: var(--text-muted); line-height: 1.8; }
+  footer a { color: var(--gold); text-decoration: none; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--dark-2); border: 1px solid rgba(200,169,110,0.3); border-radius: 12px; padding: 48px 40px; max-width: 480px; width: 100%; text-align: center; }
+  .modal-icon { width: 60px; height: 60px; background: rgba(61,122,92,0.15); border: 1px solid rgba(61,122,92,0.4); border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; }
+  .modal-icon svg { width: 28px; height: 28px; fill: #5AAD85; }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 12px; }
+  .modal-box p { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; }
+  .modal-close { display: inline-block; padding: 12px 32px; background: transparent; border: 1px solid rgba(200,169,110,0.4); color: var(--gold); font-family: 'DM Sans', sans-serif; font-size: 13px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+  .modal-close:hover { background: rgba(200,169,110,0.1); }
+
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 500px) { .register-card { padding: 32px 20px; } .modal-box { padding: 32px 20px; } }
+</style>
+</head>
+<body>
+
+<div class="urgency-bar">
+  Places limitées — Vendredi 5 juin 2025 — 18h à 20h
+  <a href="#inscription">Je m'inscris →</a>
+</div>
+
+<section class="hero">
+  <div class="badge">Conférence · Développement personnel</div>
+  <h1>Briser le cycle :<br><em>se libérer des schémas<br>relationnels répétitifs</em></h1>
+  <p class="hero-sub">Les causes de la dépendance affective sont variées et souvent insoupçonnées. Cette situation n'est pas une fatalité — il est tout à fait possible d'en sortir.</p>
+  <div class="event-info">
+    <span><svg class="icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg><strong>Vendredi 5 juin 2025</strong></span>
+    <span><svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg><strong>18:00 – 20:00 CEST</strong></span>
+    <span><svg class="icon" viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"/></svg><strong>Lille, France</strong></span>
+  </div>
+  <a href="#inscription" class="cta-primary">Réserver ma place gratuitement</a>
+  <p class="cta-note">Entrée libre · Sans engagement</p>
+</section>
+
+<section class="problem-section">
+  <div class="container">
+    <p class="section-label" style="text-align:center">Vous reconnaissez-vous ?</p>
+    <h2 class="section-title" style="text-align:center">Ces pensées qui reviennent<br>sans cesse…</h2>
+    <div class="problem-grid">
+      <div class="problem-item fade-in"><p>Je répète toujours les mêmes erreurs dans mes relations, comme si je n'apprenais jamais.</p></div>
+      <div class="problem-item fade-in"><p>J'ai besoin que l'autre valide chaque décision, je ne sais pas exister sans son regard.</p></div>
+      <div class="problem-item fade-in"><p>J'ai l'impression que mes relations s'enchaînent et se ressemblent, mais je ne sais pas pourquoi.</p></div>
+      <div class="problem-item fade-in"><p>Je donne tout, jusqu'à m'oublier moi-même, et pourtant ça ne suffit jamais.</p></div>
+      <div class="problem-item fade-in"><p>La rupture est derrière moi, mais je n'arrive pas à avancer — je tourne en rond.</p></div>
+      <div class="problem-item fade-in"><p>J'ai peur d'être seul(e), mais les relations que j'entretiens me font du mal.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="promise-section">
+  <div class="container">
+    <p class="section-label">Ce que vous allez découvrir</p>
+    <h2 class="section-title">Une soirée pour<br><em>tout changer</em></h2>
+    <div class="divider"></div>
+    <ul class="promise-list">
+      <li class="fade-in"><div class="check"><svg viewBox="0 0 12 12"><path d="M10 3L5 8.5 2 5.5 1 6.5l4 4 6-7z"/></svg></div><span>Comprendre les <strong style="color:var(--cream)">racines inconscientes</strong> de la dépendance affective et des schémas répétitifs dans vos relations.</span></li>
+      <li class="fade-in"><div class="check"><svg viewBox="0 0 12 12"><path d="M10 3L5 8.5 2 5.5 1 6.5l4 4 6-7z"/></svg></div><span>Identifier les <strong style="color:var(--cream)">mécanismes invisibles</strong> qui vous maintiennent dans des dynamiques douloureuses.</span></li>
+      <li class="fade-in"><div class="check"><svg viewBox="0 0 12 12"><path d="M10 3L5 8.5 2 5.5 1 6.5l4 4 6-7z"/></svg></div><span>Découvrir les premières pistes concrètes pour <strong style="color:var(--cream)">sortir du cycle</strong> et construire des relations plus saines.</span></li>
+      <li class="fade-in"><div class="check"><svg viewBox="0 0 12 12"><path d="M10 3L5 8.5 2 5.5 1 6.5l4 4 6-7z"/></svg></div><span>Repartir avec une <strong style="color:var(--cream)">vision claire</strong> de votre prochain pas vers la liberté relationnelle.</span></li>
+      <li class="fade-in"><div class="check"><svg viewBox="0 0 12 12"><path d="M10 3L5 8.5 2 5.5 1 6.5l4 4 6-7z"/></svg></div><span>Échanger dans un <strong style="color:var(--cream)">espace bienveillant</strong> avec d'autres personnes qui traversent le même chemin.</span></li>
+    </ul>
+    <a href="#inscription" class="cta-primary">Je veux participer →</a>
+  </div>
+</section>
+
+<section class="speaker-section">
+  <div class="container">
+    <p class="section-label">Votre intervenante</p>
+    <div class="speaker-grid">
+      <div>
+        <div class="speaker-photo">
+          <img src="data:image/png;base64,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" alt="Intervenante — Conférence sur les schémas relationnels" />
+        </div>
+      </div>
+      <div class="fade-in">
+        <h3 class="speaker-name">Maude Olivia Ekang</h3>
+        <p class="speaker-title">AKIBA RH &amp; CONSEILS — Facilitatrice en libération émotionnelle</p>
+        <div class="speaker-bio">
+          <p>Passionnée par les dynamiques relationnelles et le développement personnel, j'accompagne depuis plusieurs années des personnes souhaitant comprendre et dépasser leurs blocages affectifs.</p>
+          <p>La dépendance affective est inconsciente, souvent silencieuse, mal comprise et pourtant très répandue.</p>
+          <p>Ma mission : vous aider à reconnaître vos schémas pour en sortir durablement avec bienveillance.</p>
+          <p>Cette conférence est le point de départ d'un voyage vers <em style="color:var(--gold)">&ldquo;SOI&rdquo;</em></p>
+        </div>
+        <div class="speaker-contact">
+          <a href="tel:+33621486676"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>+33 6 21 48 66 76</a>
+          <a href="mailto:akibarhconseils@gmail.com"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>akibarhconseils@gmail.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="programme-section">
+  <div class="container">
+    <p class="section-label">Programme de la soirée</p>
+    <h2 class="section-title">Deux heures pour<br><em>poser les fondations</em></h2>
+    <div class="timeline">
+      <div class="timeline-item fade-in"><div class="timeline-time">18:00</div><div class="timeline-dot"></div><div class="timeline-content"><h4>Accueil &amp; Mise en contexte</h4><p>Présentation de l'intervenante, du cadre et des intentions de la soirée.</p></div></div>
+      <div class="timeline-item fade-in"><div class="timeline-time">18:20</div><div class="timeline-dot"></div><div class="timeline-content"><h4>Comprendre la dépendance affective</h4><p>D'où viennent ces schémas ? Quelles sont leurs origines — émotionnelles, familiales, inconscientes ?</p></div></div>
+      <div class="timeline-item fade-in"><div class="timeline-time">18:50</div><div class="timeline-dot"></div><div class="timeline-content"><h4>Identifier vos propres schémas</h4><p>Un moment d'introspection guidée pour reconnaître vos mécanismes personnels.</p></div></div>
+      <div class="timeline-item fade-in"><div class="timeline-time">19:15</div><div class="timeline-dot"></div><div class="timeline-content"><h4>Les clés pour briser le cycle</h4><p>Premières pistes pratiques, posture intérieure et outils pour amorcer le changement.</p></div></div>
+      <div class="timeline-item fade-in"><div class="timeline-time">19:40</div><div class="timeline-dot"></div><div class="timeline-content"><h4>Questions &amp; Échanges</h4><p>Un espace d'expression libre pour poser vos questions et partager vos ressentis.</p></div></div>
+      <div class="timeline-item fade-in"><div class="timeline-time">20:00</div><div class="timeline-dot"></div><div class="timeline-content"><h4>Clôture &amp; Networking</h4><p>Fin officielle de la conférence. Possibilité d'échanger et de prendre un premier RDV.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="register-section" id="inscription">
+  <div class="container">
+    <p class="section-label">Réserver ma place</p>
+    <h2 class="section-title">Prenez le premier pas<br><em>vers votre liberté</em></h2>
+    <p style="color:var(--text-muted);font-size:14px;margin-top:8px">Conférence gratuite · Vendredi 5 juin 2025 · 18h–20h · Lille</p>
+    <div class="register-card fade-in">
+      <div class="price-tag"><span>€</span>0</div>
+      <p class="price-note">Entrée entièrement gratuite</p>
+      <form id="regForm" action="https://formspree.io/f/mwvabvko" method="POST">
+        <input type="hidden" name="_subject" value="[Inscription Conférence] Se libérer des schémas relationnels" />
+        <input type="hidden" name="_next" value="about:blank" />
+        <input type="hidden" name="_language" value="fr" />
+        <div class="form-group">
+          <label>Prénom &amp; Nom *</label>
+          <input type="text" id="nom" name="Nom_Prénom" placeholder="Marie Dupont" required />
+        </div>
+        <div class="form-group">
+          <label>Adresse e-mail *</label>
+          <input type="email" id="email" name="email" placeholder="marie@exemple.fr" required />
+        </div>
+        <div class="form-group">
+          <label>Téléphone (optionnel)</label>
+          <input type="tel" id="tel" name="Téléphone" placeholder="+33 6 00 00 00 00" />
+        </div>
+        <div class="form-group">
+          <label>Comment avez-vous entendu parler de cet événement ?</label>
+          <select id="source" name="Source">
+            <option value="">— Sélectionnez —</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Bouche à oreille">Bouche à oreille</option>
+            <option value="Flyer">Flyer / Affiche</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+        <button type="submit" class="form-submit">Confirmer mon inscription →</button>
+      </form>
+      <div class="trust-row">
+        <div class="trust-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--green-accent)"><path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4z"/></svg>Données confidentielles</div>
+        <div class="trust-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--green-accent)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>Aucun spam</div>
+        <div class="trust-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="var(--green-accent)"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Confirmation e-mail</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section">
+  <div class="container">
+    <p class="section-label">Questions fréquentes</p>
+    <h2 class="section-title">Tout ce que vous<br><em>voulez savoir</em></h2>
+    <div class="faq-list">
+      <details><summary>Est-ce que la conférence est vraiment gratuite ?</summary><p>Oui, absolument. L'événement est entièrement gratuit et ouvert à toutes et tous. L'inscription permet simplement de confirmer votre présence et de recevoir les informations pratiques par e-mail.</p></details>
+      <details><summary>Où se déroule la conférence ?</summary><p>La conférence a lieu à Lille, France, dans les locaux de PhilOburo - Centre d'Affaires et Coworking. L'adresse exacte vous sera communiquée par e-mail après votre inscription.</p></details>
+      <details><summary>Faut-il une expérience en développement personnel ?</summary><p>Aucune expérience préalable n'est requise. La conférence est accessible à toute personne souhaitant mieux comprendre ses relations, qu'elle soit novice ou déjà engagée dans une démarche personnelle.</p></details>
+      <details><summary>Est-ce que je vais devoir parler en public ?</summary><p>Non. La participation aux échanges est totalement volontaire. Vous pouvez simplement écouter et observer si vous le préférez.</p></details>
+      <details><summary>Que se passe-t-il après la conférence ?</summary><p>À la fin de la soirée, vous aurez la possibilité d'échanger directement avec l'intervenante et de prendre un premier rendez-vous si vous souhaitez aller plus loin dans votre démarche personnelle.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold);margin-bottom:8px;font-style:italic">Se libérer des schémas relationnels répétitifs</p>
+    <p>Organisé par <strong style="color:var(--cream)">PhilOburo - Centre d'Affaires et Coworking</strong> · Lille<br>
+    Contact : <a href="tel:+33621486676">+33 6 21 48 66 76</a> · <a href="mailto:akibarhconseils@gmail.com">akibarhconseils@gmail.com</a></p>
+    <p style="margin-top:16px">© 2025 · Tous droits réservés · Partagez librement</p>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></div>
+    <h3>Inscription confirmée !</h3>
+    <p>Merci ! Un e-mail de confirmation vous a été envoyé à l'adresse indiquée avec toutes les informations pratiques. À très bientôt le <strong style="color:var(--cream)">vendredi 5 juin</strong> à Lille !</p>
+    <button class="modal-close" id="modalClose">Parfait, à bientôt !</button>
+  </div>
+</div>
+
+<script>
+  // Scroll animations
+  const faders = document.querySelectorAll('.fade-in');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  faders.forEach(el => observer.observe(el));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href="#inscription"]').forEach(a => {
+    a.addEventListener('click', function(e) { e.preventDefault(); document.getElementById('inscription').scrollIntoView({ behavior: 'smooth' }); });
+  });
+
+  // Form submit — envoi par mailto vers akibarhconseils@gmail.com
+  // Form handled by Formspree - show modal on success
+  document.getElementById('regForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    try {
+      const response = await fetch('https://formspree.io/f/mwvabvko', {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (response.ok) {
+        form.reset();
+        document.getElementById('modal').classList.add('open');
+      } else {
+        alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement à akibarhconseils@gmail.com');
+      }
+    } catch(err) {
+      alert('Erreur réseau. Veuillez réessayer ou nous contacter à akibarhconseils@gmail.com');
+    }
+  });
+
+  document.getElementById('modalClose').addEventListener('click', function() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('regForm').reset();
+  });
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
